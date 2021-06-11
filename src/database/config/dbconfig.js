@@ -8,6 +8,6 @@ module.exports = {
   database: process.env.DB_NAME,
   timezone: "-03:00",
   define: {
-    Timestamp: true,
+    timestamp: true,
   },
 };
