@@ -18,5 +18,14 @@ appointmentRouter.get(
   "/searchAppointmentsByPhysician/:physicianId",
   appointmentController.searchAppointmentsByPhysician
 );
+appointmentRouter.delete(
+  "/deleteAppointment/:id", 
+  appointmentController.deleteAppointment
+  );
+  
+appointmentRouter.post(
+  "/newAppointment", 
+  appointmentController.newAppointment
+  );
 
 module.exports = appointmentRouter;

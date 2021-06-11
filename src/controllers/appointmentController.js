@@ -1,7 +1,49 @@
 const Appointment = require("../models/Appointment");
+const Physician = require("../models/Physician");
+const Patient = require("../models/Patient");
 const Sequelize = require("sequelize");
 
 module.exports = {
+
+  async newAppointment(req, res) {
+    const { physicianId, patientId, appointmentDate, description } = req.body;
+    if (!physicianId || !patientId || !appointmentDate, !description) {
+      res.status(400).json({
+        msg: "Dados obrigatórios não foram preenchidos.",
+      });
+    }
+    let id = physicianId;
+
+    //Procurar no BD se médico existe
+    const physicianExist = await Physician.findOne({
+      where: { id },
+    });
+
+    id = patientId;
+    //Procurar no BD se paciente existe
+    const PatientExist = await Patient.findOne({
+      where: { id },
+    });
+
+    if (!PatientExist && !physicianExist)
+      res.status(403).json({ msg: "Paciente ou médico não existem." });
+    else {
+      const patient = await Appointment.create({
+        physicianId, 
+        patientId, 
+        appointmentDate, 
+        description
+      }).catch((error) => {
+        res.status(500).json({ msg: "Não foi possível inserir os dados." });
+      });
+      if (patient)
+        res.status(201).json({ msg: "Nova consulta foi adicionada." });
+      else
+        res
+          .status(404)
+          .json({ msg: "Não foi possível cadastrar nova consulta." });
+    }
+  },
   async listAllAppointments(req, res) {
     const appointments = await Appointment.findAll({
       appointments: [["physicianId", "ASC"]],
@@ -53,7 +95,7 @@ module.exports = {
     const patientId = req.params.patientId;
     if (!patientId)
       res.status(400).json({
-        msg: "Campo vendedor vazio.",
+        msg: "Campo vazio.",
       });
 
     //Checar se patient existe
@@ -69,5 +111,21 @@ module.exports = {
       else res.status(200).json({ appointments });
     } else
       res.status(404).json({ msg: "Não foi possível encontrar atendimentos." });
+  },
+
+  async deleteAppointment(req, res) {
+    const appointmentId = req.params.id;
+    const deletedAppointment = await Appointment.destroy({
+      where: { id: appointmentId },
+    }).catch(async (error) => {
+      const patientHasRef = await Appointment.findOne({
+        where: { appointmentId },
+      }).catch((error) => {
+        res.status(500).json({ msg: "Falha na conexão." });
+      });
+    });
+    if (deletedAppointment != 0)
+      res.status(200).json({ msg: "Consulta excluida com sucesso." });
+    else res.status(404).json({ msg: "Consulta não encontrada." });
   },
 };
