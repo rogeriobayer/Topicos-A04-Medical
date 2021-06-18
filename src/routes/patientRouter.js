@@ -5,6 +5,7 @@ const patientController = require("../controllers/patientController");
 patientRouter.get("/listAllPatients", patientController.listAllPatients);
 patientRouter.post(
   "/searchPatientByName",
+
   patientController.searchPatientByName
 );
 patientRouter.post("/newPatient", patientController.newPatient);

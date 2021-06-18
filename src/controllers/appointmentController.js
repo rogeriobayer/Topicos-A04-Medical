@@ -4,10 +4,9 @@ const Patient = require("../models/Patient");
 const Sequelize = require("sequelize");
 
 module.exports = {
-
   async newAppointment(req, res) {
     const { physicianId, patientId, appointmentDate, description } = req.body;
-    if (!physicianId || !patientId || !appointmentDate, !description) {
+    if ((!physicianId || !patientId || !appointmentDate, !description)) {
       res.status(400).json({
         msg: "Dados obrigatórios não foram preenchidos.",
       });
@@ -29,10 +28,10 @@ module.exports = {
       res.status(403).json({ msg: "Paciente ou médico não existem." });
     else {
       const patient = await Appointment.create({
-        physicianId, 
-        patientId, 
-        appointmentDate, 
-        description
+        physicianId,
+        patientId,
+        appointmentDate,
+        description,
       }).catch((error) => {
         res.status(500).json({ msg: "Não foi possível inserir os dados." });
       });
@@ -62,7 +61,7 @@ module.exports = {
       });
     const Op = Sequelize.Op;
     const appointments = await Appointment.findAll({
-      where: { saleDate: { [Op.between]: [startDate, endDate] } },
+      where: { appointmentDate: { [Op.between]: [startDate, endDate] } },
     }).catch((error) => res.status(500).json({ msg: "Falha na conexão." }));
     if (appointments) {
       if (appointments == "")
