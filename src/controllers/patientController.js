@@ -1,4 +1,5 @@
 const Patient = require("../models/Patient");
+const Physician = require("../models/Physician");
 const Appointment = require("../models/Appointment");
 const Sequelize = require("sequelize");
 
@@ -110,5 +111,38 @@ module.exports = {
             .json({ msg: "Campos obrigatórios não preenchidos." });
       }
     }
+  },
+  async searchPatientByPhysician(req, res) {
+    const physicianId = req.body.id;
+    if (!physicianId) res.status(403).json({ msg: "Campo de id vazio" });
+    const physician = await Physician.findOne({
+      where: { id: physicianId },
+    }).catch(async (error) => {
+      res.status(500).json({ msg: "Falha na conexão." });
+    });
+    if (physician) {
+      //achou o médico
+      const appointments = await Appointment.findAll({
+        where: { physicianId },
+      }).catch((error) => res.status(500).json({ msg: "Falha na conexão." }));
+      if (appointments) {
+        if (appointments == "")
+          res
+            .status(404)
+            .json({ msg: "Esse médico não possui nenhum paciente." });
+        else {
+          var patients = [];
+          for (c = 0; c < appointments.length; c++) {
+            var aux; // variável aux auxilia para que patients tenha apenas o nome do paciente.
+            aux = await Patient.findByPk(appointments[c].patientId);
+            patients[c] = aux.name;
+          }
+          res.status(200).json({ patients });
+        }
+      } else
+        res
+          .status(404)
+          .json({ msg: "Não foi possível encontrar atendimentos." });
+    } else res.status(404).json({ msg: "Médico não encontrado." });
   },
 };

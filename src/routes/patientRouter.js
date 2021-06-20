@@ -11,5 +11,9 @@ patientRouter.post(
 patientRouter.post("/newPatient", patientController.newPatient);
 patientRouter.delete("/deletePatient/:id", patientController.deletePatient);
 patientRouter.put("/updatePatient", patientController.updatePatient);
+patientRouter.post(
+  "/searchPatientByPhysician",
+  patientController.searchPatientByPhysician
+);
 
 module.exports = patientRouter;
